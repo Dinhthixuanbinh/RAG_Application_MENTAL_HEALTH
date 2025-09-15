@@ -90,7 +90,7 @@ def initialize_chatbox(chat_store, container, username, user_info):
     agent = OpenAIAgent.from_tools(
         tools = [dsm5_tool, save_tool] ,
         memory = memory,
-        system_promt = CUSTORM_SUMMARY_EXTRACT_TEMPLATE.format(user_info = user_info)
+        system_promt = CUSTORM_AGENT_SYSTEM_TEMPLATE.format(user_info = user_info)
     )
 
     # display_messages(chat_store, container, key= username)

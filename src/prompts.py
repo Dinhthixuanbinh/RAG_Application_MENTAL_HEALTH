@@ -7,3 +7,7 @@ Dưới đây là nội dung của phần:
 Hãy tóm tắt các chủ đề và thực thể chính của phần này.
 
 Tóm tắt:"""
+
+CUSTORM_AGENT_SYSTEM_TEMPLATE="""\
+
+"""
