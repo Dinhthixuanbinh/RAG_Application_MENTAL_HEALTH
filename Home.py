@@ -12,7 +12,7 @@ def main():
         layout="wide"
     )
 
-    st.title("🧠 RAG Application for Mental Health")
+    st.title(" RAG Application for Mental Health")
     st.markdown(
         """
         ### Welcome to the RAG Application for Mental Health!

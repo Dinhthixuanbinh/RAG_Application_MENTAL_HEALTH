@@ -1,4 +1,5 @@
-from llama_index.core import VectorStoreIndex, Load_index_from_storage
+from llama_index.core import VectorStoreIndex
+from llama_index.core import load_index_from_storage
 from llama_index.core import StorageContext
 from src.global_settings import INDEX_STORAGE
 
