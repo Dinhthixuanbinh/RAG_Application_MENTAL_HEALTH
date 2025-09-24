@@ -9,7 +9,7 @@ def build_indexes(nodes):
         storage_context = StorageContext.from_defaults (
             persist_dir = INDEX_STORAGE
         )
-        vector_index = Load_index_from_storage(
+        vector_index = load_index_from_storage(
             storage_context, index_id = "vector"
         )
 

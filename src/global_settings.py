@@ -7,7 +7,7 @@ CONVERSATION_FILE = "data/cache/chat_history.json"
 # Storage paths
 STORAGE_PATH = "data/ingestion_storage/"
 FILES_PATH = [
-    "data/ingestion_storage/dsm-5-cac-tieu-chuan-chan-doan.docx"
+    "data/ingestion_storage/dsm5.docx"
 ]
 INDEX_STORAGE = "data/index_storage"
 

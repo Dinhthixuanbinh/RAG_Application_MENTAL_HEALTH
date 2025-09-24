@@ -1,8 +1,9 @@
 import openai
 from llama_index.core import Settings, Document, VectorStoreIndex
-from llama_index.llms.openai import OpenAI
+# from llama_index.llms.openai import OpenAI
+from llama_index.llms.gemini import Gemini
 from llama_index.core.node_parser import TokenTextSplitter
-from llama_index.core.evaluate import (
+from llama_index.core.evaluation import (
     BatchEvalRunner,
     CorrectnessEvaluator,
     FaithfulnessEvaluator,
@@ -15,9 +16,9 @@ import nest_asyncio
 from tqdm.asyncio import tqdm_asyncio
 
 
-def setup_openai(api_key: str, model: str = "gpt-4o-mini", temperature : float = 0.2 ):
+def setup_openai(api_key: str, model: str = "models/gemini-1.5-flash", temperature : float = 0.2 ):
     openai.api_key = api_key
-    Settings.llm = OpenAI(model=model, temperature= temperature)
+    Settings.llm = Gemini(model=model, temperature= temperature)
 
 #Split text into smaller chunks for processing
 def create_document_and_splitter(text : str, chunk_size: int =20 , chunk_overlap : int = 5, separator : str = " "):
