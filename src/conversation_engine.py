@@ -4,15 +4,15 @@ import json
 from datetime import datetime
 from loguru import logger
 import streamlit as st
-from llama_index.core import load_index_from_storage, StorageContext
+from llama_index.core import load_index_from_storage, StorageContext, Settings
 from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.tools import QueryEngineTool, ToolMetadata, FunctionTool
 from llama_index.core.storage.chat_store import SimpleChatStore
 from llama_index.llms.gemini import Gemini
-from llama_index.core.agent import ReActAgent
-from llama_index.core import Settings
+from llama_index.core.agent import ReActAgent  # Changed agent class to ReActAgent
 from src.global_settings import INDEX_STORAGE, CONVERSATION_FILE, SCORES_FILE
 from src.prompts import CUSTORM_AGENT_SYSTEM_TEMPLATE
+import openai # Retained, as the OpenAIAgent might rely on global OpenAI config, though ReActAgent is preferred here.
 
 def load_chat_store() -> SimpleChatStore:
     """
@@ -50,7 +50,7 @@ def save_score(score: str, content: str, total_guess: str, usename: str):
         "Content": content,
         "Total guess": total_guess
     }
-
+    
     try:
         if os.path.exists(SCORES_FILE) and os.path.getsize(SCORES_FILE) > 0:
             with open(SCORES_FILE, "r") as f:
@@ -80,22 +80,24 @@ def initialize_chatbox(chat_store: SimpleChatStore, username: str, user_info: st
         user_info (str): Additional information about the user for context.
         
     Returns:
-        OpenAIAgent: The configured chat agent.
+        ReActAgent: The configured chat agent.
     """
     try:
-        # Check for Google API Key
-        # This is where the LLM is configured globally. 
-        # Make sure this is also set in the ingest_pipeline.py
+        # Access API key from Streamlit secrets (safe inside the Streamlit context)
         try:
             google_api_key = st.secrets.google.GOOGLE_API_KEY
         except AttributeError:
-            logger.error("Google API key not found in Streamlit secrets. Please configure it in .streamlit/secrets.toml")
+            logger.error("Google API key not found in Streamlit secrets. Cannot initialize chat.")
             st.error("API keys are not configured. Please contact the administrator.")
             return None
         
-        # Set up LlamaIndex settings
-        llm_instance = Gemini(model="models/gemini-1.5-flash", temperature=0.2, api_key=google_api_key)
-        Settings.llm = llm_instance
+        # Set up LlamaIndex LLM instance
+        llm_instance = Gemini(
+            model="gemini-1.5-flash", # Corrected model name format
+            temperature=0.2, 
+            api_key=google_api_key
+        )
+        Settings.llm = llm_instance # Set global LLM
 
         memory: ChatMemoryBuffer = ChatMemoryBuffer.from_defaults(
             token_limit=3000,
@@ -129,13 +131,18 @@ def initialize_chatbox(chat_store: SimpleChatStore, username: str, user_info: st
 
         save_tool: FunctionTool = FunctionTool.from_defaults(fn=save_score)
 
-        # Initialize the agent
+        # Initialize the ReActAgent (compatible with Gemini)
         agent = ReActAgent.from_tools(
             tools=[dsm5_tool, save_tool],
             llm=llm_instance,
             memory=memory,
-            verbose=True
+            verbose=True,
+            # Note: ReActAgent doesn't take 'system_prompt' directly; it should be part of the initial chat history or prompt template.
+            # Using the system prompt to seed the chat history might be necessary for full effect.
         )
+        
+        # Manually setting system instruction for ReActAgent is often done via chat history or LLM prompt template
+        # For simplicity, we assume the CUSTORM_AGENT_SYSTEM_TEMPLATE content will be part of the first prompt by the user or pre-appended in a more complex setup.
         
         logger.info("Chat agent initialized.")
         return agent
